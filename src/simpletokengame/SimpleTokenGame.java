@@ -6,9 +6,13 @@
 
 package simpletokengame;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import xsltnet.DecisionListener;
 import xsltnet.Edge;
 import xsltnet.Net;
 import xsltnet.NetLogic;
@@ -166,9 +170,32 @@ public class SimpleTokenGame {
             
             generateNet(net);
             System.out.println(printNet(net, true, true, true));
-            NetLogic.simulateWithSequentialStrategy(net);
-            //System.out.println("\n\n### Endsituation ##########################################################################################################################################\n");
-            //System.out.println(printNet(net));
+            //NetLogic.simulateWithSequentialStrategy(net);
+            NetLogic.startTokenGame(net, new DecisionListener() {
+
+                @Override
+                public Transition onActiveTransactions(List<Transition> transitions) {
+                    System.out.println("\n\n### Welche Transition soll geschalten werden? #############################################################################################################\n");
+                    int i = 0;
+                    for(Transition t: transitions) {
+                        System.out.println("["+i+"] "+ t.getId());
+                        i++;
+                    }
+                    InputStreamReader inputStreamReader = new InputStreamReader(System.in);
+                    BufferedReader reader = new BufferedReader(inputStreamReader);
+                    System.out.print("Transitionsnummer eingeben: ");
+                    String choice = "0";
+                    try {
+                        choice =  reader.readLine();
+                    } catch (IOException ex) {
+                        Logger.getLogger(SimpleTokenGame.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    
+                    return transitions.get(new Integer(choice));
+                    //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+                }
+            });
+            
         } catch (Exception ex) {
             Logger.getLogger(SimpleTokenGame.class.getName()).log(Level.SEVERE, null, ex);
         }      
